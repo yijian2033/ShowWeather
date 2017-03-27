@@ -1,0 +1,23 @@
+######## Android Studio如何解决其它版本的gradle同步失败问题：#############
+错误一：
+Error:Failed to open zip file.
+Gradle's dependency cache may be corrupt (this sometimes occurs after a network connection timeout.)
+<a href="syncProject">Re-download dependencies and sync project (requires network)</a>
+<a href="syncProject">Re-download dependencies and sync project (requires network)</a>
+
+文件路径：ProjectCode/gradle/wrapper/gradle-wrapper.properties
+distributionUrl=https\://services.gradle.org/distributions/gradle-2.2-all.zip
+修改为gradle对应本地安装的版本：
+distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip    //android studio version 2.3
+
+错误二：
+文件路径：ProjectCode/build.gradle
+classpath 'com.android.tools.build:gradle:1.3.0'
+修改为gradle对应本地安装的版本：
+classpath 'com.android.tools.build:gradle:2.3.0'  //android studio version  2.3
+
+文件路径：ProjectCode/build.gradle
+classpath 'com.android.tools.build:gradle:1.3.0'
+修改为gradle对应本地安装的版本：
+classpath 'com.android.tools.build:gradle:2.3.0'  //android studio version  2.3
+###########################################################################
