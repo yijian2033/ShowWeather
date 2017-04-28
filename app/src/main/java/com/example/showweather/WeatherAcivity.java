@@ -6,12 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,18 +33,6 @@ import com.lidroid.xutils.http.callback.RequestCallBack;
 import com.lidroid.xutils.http.client.HttpRequest;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,6 +42,9 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
+
 
 /**
  * Created by Administrator on 2016/5/31 0031.
@@ -106,12 +95,11 @@ public class WeatherAcivity extends Activity {
         getDefaultGridData();
         initLocation();
         startLocation();
-        
         if(!TextUtils.isEmpty(Utils.getCity(getApplicationContext())))
         	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
 //        getCityName(getUrl(Utils.getLongitude(getApplicationContext()), Utils.getLatitude(getApplicationContext())));
     }
-    
+
     
     /**
      * ��ʼ����λ
@@ -153,11 +141,14 @@ public class WeatherAcivity extends Activity {
     AMapLocationListener locationListener = new AMapLocationListener() {
         @Override
         public void onLocationChanged(AMapLocation loc) {
-            if (null != loc) {
+            if (null != loc && loc.getErrorCode() == 0) {
                 //解析定位结果
-                Log.i("ljwtest:", "定位成功,城市名：" + loc.getCity());
+                Log.i("ljwtest:", "定位成功,城市名：" + loc);
                 Utils.setCity(getApplicationContext(), loc.getCity().substring(0,  loc.getCity().length() - 1));
             } else {
+                if (null != loc && loc.getErrorCode() != 0){
+                    Log.i("ljwtest:", "定位失败，"+loc.getErrorInfo());
+                }else
                 Log.i("ljwtest:", "定位失败，loc is null");
             }
         }
@@ -351,6 +342,7 @@ public class WeatherAcivity extends Activity {
             }
             if(!TextUtils.isEmpty(Utils.getCity(getApplicationContext())))
             	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
+
         }
     }
 
@@ -487,6 +479,7 @@ public class WeatherAcivity extends Activity {
             return;
         nowDate = new WeatherInfo();
         try {
+        //    {"date":"2017-03-30","info":{"day":["1","多云","27","无持续风向","微风"],"night":["1","多云","22","无持续风向","微风"]}}
             log_i("日期是:" + Utils.formatDate(jsonObject.get("date").toString()));
             JSONObject jsonObject1 = jsonObject.getJSONObject("info");
             JSONArray jsonArray = jsonObject1.has("day") ? jsonObject1.getJSONArray("day") : jsonObject1.getJSONArray("night");
@@ -627,4 +620,5 @@ public class WeatherAcivity extends Activity {
     private void log_i(String s) {
         Log.i("ljwtest:", s);
     }
+
 }

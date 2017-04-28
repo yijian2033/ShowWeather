@@ -15,7 +15,8 @@
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="f4f40718d624310fc0aa330f856403df" />
+            android:value="4c3e424a0d354e5b24beb8b92c04da59" />
+             <!--  android:value="f4f40718d624310fc0aa330f856403df" -->
 		<!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" >
         </service>
