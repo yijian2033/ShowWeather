@@ -56,6 +56,7 @@ public class WeatherAcivity extends Activity {
     private TextView weatherLocCity;//定位城市
     private TextView humidity;//湿度
     private TextView windSpeed;//风速
+    private TextView presuretext;//气压
     private TextView bigTmpTxt;//中间的温度大图
     private ImageView bigWeatherImg;//中间的天气大图
     private TextView bigWeatherInfo;//中间的天气描述
@@ -74,7 +75,8 @@ public class WeatherAcivity extends Activity {
 
 
     private static String locationUrl = "http://lbs.juhe.cn/api/getaddressbylngb?lngx=";//获取城市名称URL
-    private static String weatherUrl = "http://cdn.weather.hao.360.cn/api_weather_info.php?app=hao360&_jsonp=data&code=";//根据城市获取天气信息URL
+    //private static String weatherUrl = "http://cdn.weather.hao.360.cn/api_weather_info.php?app=hao360&_jsonp=data&code=";//根据城市获取天气信息URL
+    private static String weatherUrl = "http://service.envicloud.cn:8082/v2/weatherforecast/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/";//根据城市获取天气信息URL
     private static final String ACTION_TIMEZONE_CHANGED = Intent.ACTION_TIME_TICK;//监听时区变化的广播
     private boolean isEnableClick = false;
 
@@ -253,6 +255,8 @@ public class WeatherAcivity extends Activity {
             wi.setWeatherWind("西南风");
             wi.setWeatherImg(R.drawable.forecast_sun);
             wi.setWeatherInfo("晴天");
+            wi.setWeatherHum("湿度50%");
+            wi.setWeatherPress("气压1011hPa");
             defaultList.add(wi);
         }
         initGridView(defaultList);
@@ -291,6 +295,7 @@ public class WeatherAcivity extends Activity {
         weatherLocCity = (TextView) findViewById(R.id.weatherloccity);
         humidity = (TextView) findViewById(R.id.humiditytext);
         windSpeed = (TextView) findViewById(R.id.windspeedtext);
+        presuretext = (TextView) findViewById(R.id.presuretext);
         bigTmpTxt = (TextView) findViewById(R.id.weathertmp);
         bigWeatherImg = (ImageView) findViewById(R.id.weatherimg);
         bigWeatherInfo = (TextView) findViewById(R.id.weatherinfo);
@@ -409,7 +414,8 @@ public class WeatherAcivity extends Activity {
             @Override
             public void onSuccess(ResponseInfo<String> responseInfo) {
                 log_i("原始数据:" + responseInfo.result);
-                String weatherinfo = cutJsonString(Utils.unicodeToString(Utils.formatJsonString(responseInfo.result)));
+              //  String weatherinfo = cutJsonString(Utils.unicodeToString(Utils.formatJsonString(responseInfo.result)));
+                String weatherinfo = responseInfo.result;
                 log_i(weatherinfo);
                 parseWeatherInfo(weatherinfo);
             }
@@ -463,7 +469,7 @@ public class WeatherAcivity extends Activity {
     private JSONObject parseWhichDayForcastInfo(String info, int which) {
         try {
             JSONObject jo = new JSONObject(info);
-            JSONArray ja = jo.getJSONArray("weather");
+            JSONArray ja = jo.getJSONArray("forecast");
             return (JSONObject) ja.get(which);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -479,9 +485,36 @@ public class WeatherAcivity extends Activity {
             return;
         nowDate = new WeatherInfo();
         try {
+        //   {"wind":{"dir":"西风","deg":"234","sc":"微风","spd":"1"},"hum":"58","pcpn":"1.0",
+            // "astro":{"mr":"06:42","sr":"05:12","ms":"20:31","ss":"18:31"},"uv":"5","tmp":{"min":"15","max":"25"},
+            // "pop":"100","date":"2017-04-28","pres":"1015","cond":{"cond_n":"阴","cond_d":"阴"},"vis":"18"}
+
         //    {"date":"2017-03-30","info":{"day":["1","多云","27","无持续风向","微风"],"night":["1","多云","22","无持续风向","微风"]}}
             log_i("日期是:" + Utils.formatDate(jsonObject.get("date").toString()));
-            JSONObject jsonObject1 = jsonObject.getJSONObject("info");
+            log_i("气压是:" + jsonObject.get("pres").toString());
+            log_i("湿度是:" + jsonObject.get("hum").toString());
+            JSONObject windObject = jsonObject.getJSONObject("wind");
+            log_i("风向是:" + windObject.get("dir").toString() +" "+ windObject.get("sc").toString());
+            JSONObject condObject = jsonObject.getJSONObject("cond");
+            log_i("天气是:" + condObject.get("cond_d").toString());
+            JSONObject tmpObject = jsonObject.getJSONObject("tmp");
+            log_i("温度是:" + tmpObject.get("min").toString()+ " "+tmpObject.get("max").toString());
+
+            nowDate.setWeatherInfo(condObject.get("cond_d").toString());
+            nowDate.setWeatherImg(getWeathersmallImg(condObject.get("cond_d").toString()));
+            if (windObject.get("dir").toString().equals("无持续风向")){
+                nowDate.setWeatherWind( windObject.get("sc").toString());
+            }else {
+                nowDate.setWeatherWind(windObject.get("dir").toString() +" "+ windObject.get("sc").toString());
+            }
+
+            nowDate.setCurrentDate(Utils.formatDate(jsonObject.get("date").toString()));
+            nowDate.setWeatherTmp(tmpObject.get("min").toString()+ "-"+tmpObject.get("max").toString() + "℃");
+            nowDate.setWhichDayOfWeek(Utils.getWeekDays(jsonObject.get("date").toString()));
+            nowDate.setWeatherHum("湿度"+jsonObject.get("hum").toString()+"%");
+            nowDate.setWeatherPress("气压"+jsonObject.get("pres").toString()+"hPa");
+
+           /* JSONObject jsonObject1 = jsonObject.getJSONObject("info");
             JSONArray jsonArray = jsonObject1.has("day") ? jsonObject1.getJSONArray("day") : jsonObject1.getJSONArray("night");
             log_i("天气是:" + jsonArray.get(1).toString());
             log_i("温度是:" + jsonArray.get(2).toString());
@@ -492,7 +525,7 @@ public class WeatherAcivity extends Activity {
             nowDate.setWeatherWind(jsonArray.get(4).toString());
             nowDate.setCurrentDate(Utils.formatDate(jsonObject.get("date").toString()));
             nowDate.setWeatherTmp(jsonArray.get(2).toString() + "℃");
-            nowDate.setWhichDayOfWeek(Utils.getWeekDays(jsonObject.get("date").toString()));
+            nowDate.setWhichDayOfWeek(Utils.getWeekDays(jsonObject.get("date").toString()));*/
             forecastList.add(nowDate);
         } catch (JSONException e) {
             log_i("解析错误:" + e.toString());
@@ -594,7 +627,8 @@ public class WeatherAcivity extends Activity {
         bigTmpTxt.setText(weatherInfo.getWeatherTmp());
         bigWeatherInfo.setText(weatherInfo.getWeatherInfo());
         currentDateText.setText(weatherInfo.getCurrentDate() + " " + weatherInfo.getWhichDayOfWeek());
-
+        presuretext.setText(weatherInfo.getWeatherPress());
+        humidity.setText(weatherInfo.getWeatherHum());
         bigWeatherImg.setImageResource(getWeatherImg(weatherInfo.getWeatherInfo()));
         bigWeatherInfo.setText(weatherInfo.getWeatherInfo());
         bigTmpTxt.setText(weatherInfo.getWeatherTmp());

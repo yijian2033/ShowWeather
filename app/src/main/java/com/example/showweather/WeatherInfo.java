@@ -11,6 +11,16 @@ public class WeatherInfo {
     private String currentDate;
     private String weatherInfo;
     private String weatherWind;
+    private String weatherHum;
+    private String weatherPress;
+
+    public String getWeatherPress() {
+        return weatherPress;
+    }
+
+    public void setWeatherPress(String weatherPress) {
+        this.weatherPress = weatherPress;
+    }
 
     public String getWeatherWind() {
         return weatherWind;
@@ -58,6 +68,14 @@ public class WeatherInfo {
 
     public void setCurrentDate(String currentDate) {
         this.currentDate = currentDate;
+    }
+
+    public void setWeatherHum(String weatherHum) {
+        this.weatherHum = weatherHum;
+    }
+
+    public String getWeatherHum() {
+        return weatherHum;
     }
 
 }
