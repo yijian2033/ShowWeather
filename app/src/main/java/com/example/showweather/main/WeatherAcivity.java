@@ -271,7 +271,10 @@ public class WeatherAcivity extends Activity {
             wi.setWeatherImg(R.drawable.forecast_sun);
             wi.setWeatherInfo("晴天");
             wi.setWeatherHum("湿度50%");
-            wi.setWeatherPress("气压1011hPa");
+            wi.setWeatherPress("气压 1015 hPa");
+            wi.setWeatherLiveImg(R.drawable.forecast_sun);
+            wi.setWeatherLiveTmp("25℃");
+            wi.setWeatherLiveInfo("晴天");
             defaultList.add(wi);
         }
         initGridView(defaultList);
