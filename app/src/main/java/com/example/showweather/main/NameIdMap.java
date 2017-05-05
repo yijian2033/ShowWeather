@@ -1,4 +1,4 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
 import java.util.HashMap;
 import java.util.Map;

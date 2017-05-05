@@ -1,6 +1,5 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,11 +20,19 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.example.showweather.R;
+import com.example.showweather.model.db.dao.WeatherDao;
+import com.example.showweather.model.db.entities.adapter.EnvironmentCloudWeatherAdapter;
+import com.example.showweather.model.db.entities.minimalist.Weather;
+import com.example.showweather.model.http.ApiClient;
+import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudForecast;
+import com.example.showweather.model.repository.WeatherDataRepository;
 import com.lidroid.xutils.HttpUtils;
 import com.lidroid.xutils.exception.HttpException;
 import com.lidroid.xutils.http.ResponseInfo;
@@ -43,7 +50,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 
+import rx.Observable;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -83,6 +96,7 @@ public class WeatherAcivity extends Activity {
     private MsgRecieve mRecieve;//广播监听
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 11;
 
+    WeatherDao weatherDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +111,13 @@ public class WeatherAcivity extends Activity {
         getDefaultGridData();
         initLocation();
         startLocation();
-        if(!TextUtils.isEmpty(Utils.getCity(getApplicationContext())))
-        	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
-//        getCityName(getUrl(Utils.getLongitude(getApplicationContext()), Utils.getLatitude(getApplicationContext())));
+        weatherDao = new WeatherDao(this);
+        updateWeather();
     }
 
-    
+
+
+
     /**
      * ��ʼ����λ
      *
@@ -316,7 +331,7 @@ public class WeatherAcivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                
-            			notifyUpdateUI(weatherlist.get(position));
+            			notifyUpdateUI(weatherlist.get(position),position);
             }
         });
     }
@@ -345,9 +360,35 @@ public class WeatherAcivity extends Activity {
                 log_i("本地时间已改变");
                 changeAMOrPM();
             }
-            if(!TextUtils.isEmpty(Utils.getCity(getApplicationContext())))
-            	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
+            updateWeather();
 
+        }
+    }
+
+    private void updateWeather() {
+        if(!TextUtils.isEmpty(Utils.getCity(getApplicationContext()))){
+            //	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
+            Subscription subscription = WeatherDataRepository.getWeather(WeatherAcivity.this,mapAllNameID.get(Utils.getCity(getApplicationContext())),weatherDao)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Weather>() {
+                                   @Override
+                                   public void onCompleted() {
+
+                                   }
+
+                                   @Override
+                                   public void onError(Throwable e) {
+                                       Toast.makeText(WeatherAcivity.this,"发生错误"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                       e.printStackTrace();
+                                   }
+
+                                   @Override
+                                   public void onNext(Weather weather) {
+                                       showWerather(weather);
+                                   }
+                               }
+                    );
         }
     }
 
@@ -404,6 +445,27 @@ public class WeatherAcivity extends Activity {
         });
     }
 
+    private void showWerather(Weather weather) {
+        updateperCitys(weather.getCityName());
+        forecastList.clear();
+        for (int i = 0; i < 5; ++i) {
+            nowDate = new WeatherInfo();
+            nowDate.setWeatherInfo(weather.getWeatherForecasts().get(i).getWeather());
+            nowDate.setWeatherImg(getWeathersmallImg(weather.getWeatherForecasts().get(i).getWeather()));
+            nowDate.setWeatherWind( weather.getWeatherForecasts().get(i).getWind());
+            nowDate.setCurrentDate(Utils.formatDate(weather.getWeatherForecasts().get(i).getData()));
+            nowDate.setWeatherTmp(weather.getWeatherForecasts().get(i).getTempMin()+ "-"+weather.getWeatherForecasts().get(i).getTempMax() + "℃");
+            nowDate.setWhichDayOfWeek(weather.getWeatherForecasts().get(i).getWeek());
+            nowDate.setWeatherHum("湿度"+weather.getWeatherForecasts().get(i).getHum()+"%");
+            nowDate.setWeatherPress("气压"+weather.getWeatherForecasts().get(i).getPres()+"hPa");
+            nowDate.setWeatherLiveTmp(Integer.parseInt(weather.getWeatherLive().getTemp().substring(0,weather.getWeatherLive().getTemp().indexOf(".")))+"℃");
+            nowDate.setWeatherLiveInfo(weather.getWeatherLive().getWeather());
+            nowDate.setWeatherLiveImg(getWeathersmallImg(weather.getWeatherLive().getWeather()));
+            forecastList.add(nowDate);
+        }
+        initGridView(forecastList);
+        notifyUpdateUI(forecastList.get(0),0);
+    }
     /**
      * 根据当前的城市代码获取相应的天气信息
      */
@@ -444,7 +506,7 @@ public class WeatherAcivity extends Activity {
             getAndAddForecastGridView(parseWhichDayForcastInfo(info, i));
         }
             initGridView(forecastList);
-            notifyUpdateUI(forecastList.get(0));
+            notifyUpdateUI(forecastList.get(0),0);
     }
 
     /**
@@ -543,15 +605,7 @@ public class WeatherAcivity extends Activity {
     private int getWeatherImg(String cond) {
         int img = 0;
         int length = cond.length();
-        if (cond.contains("晴"))
-            img = R.drawable.weather_sun;
-        else if (cond.contains("多云"))
-            img = R.drawable.weather_cloud;
-        else if (cond.contains("阴"))
-            img = R.drawable.weather_overcast;
-        else if (cond.contains("雷"))
-            img = R.drawable.weather_thunderandrain;
-        else if (cond.contains("雨")) {
+        if (cond.contains("雨")) {
             if (cond.contains("小雨"))
                 img = R.drawable.weather_smallrain;
             else if (cond.contains("中雨"))
@@ -571,7 +625,15 @@ public class WeatherAcivity extends Activity {
                 img = R.drawable.weather_middlesnow;
             else
                 img = R.drawable.weather_smallsnow;
-        } else
+        } else if (cond.contains("晴"))
+            img = R.drawable.weather_sun;
+        else if (cond.contains("多云"))
+            img = R.drawable.weather_cloud;
+        else if (cond.contains("阴"))
+            img = R.drawable.weather_overcast;
+        else if (cond.contains("雷"))
+            img = R.drawable.weather_thunderandrain;
+        else
             img = R.drawable.weather_sun;
         return img;
     }
@@ -585,15 +647,7 @@ public class WeatherAcivity extends Activity {
     private int getWeathersmallImg(String cond) {
         int img = 0;
         int length = cond.length();
-        if (cond.contains("晴") && length <= 2)
-            img = R.drawable.forecast_sun;
-        else if (cond.contains("多云"))
-            img = R.drawable.forecast_cloud;
-        else if (cond.contains("阴") && length <= 2)
-            img = R.drawable.forecast_overcast;
-        else if (cond.contains("雷"))
-            img = R.drawable.forecast_thunderandrain;
-        else if (cond.contains("雨")) {
+        if (cond.contains("雨")) {
             if (cond.contains("小雨"))
                 img = R.drawable.forecast_smallrain;
             else if (cond.contains("中雨"))
@@ -613,7 +667,15 @@ public class WeatherAcivity extends Activity {
                 img = R.drawable.forecast_middlesnow;
             else
                 img = R.drawable.forecast_smallsnow;
-        } else
+        } else if (cond.contains("晴") && length <= 2)
+            img = R.drawable.forecast_sun;
+        else if (cond.contains("多云"))
+            img = R.drawable.forecast_cloud;
+        else if (cond.contains("阴") && length <= 2)
+            img = R.drawable.forecast_overcast;
+        else if (cond.contains("雷"))
+            img = R.drawable.forecast_thunderandrain;
+        else
             img = R.drawable.forecast_sun;
         return img;
     }
@@ -621,7 +683,7 @@ public class WeatherAcivity extends Activity {
     /**
      * 动态更新界面其他的UI元素
      */
-    private void notifyUpdateUI(WeatherInfo weatherInfo) {
+    private void notifyUpdateUI(WeatherInfo weatherInfo,int day) {
         windSpeed.setText(weatherInfo.getWeatherWind());
         bigWeatherImg.setImageResource(getWeatherImg(weatherInfo.getWeatherInfo()));
         bigTmpTxt.setText(weatherInfo.getWeatherTmp());
@@ -631,7 +693,14 @@ public class WeatherAcivity extends Activity {
         humidity.setText(weatherInfo.getWeatherHum());
         bigWeatherImg.setImageResource(getWeatherImg(weatherInfo.getWeatherInfo()));
         bigWeatherInfo.setText(weatherInfo.getWeatherInfo());
-        bigTmpTxt.setText(weatherInfo.getWeatherTmp());
+        if (day == 0){
+            bigTmpTxt.setText(weatherInfo.getWeatherLiveTmp());
+            bigWeatherImg.setImageResource(getWeatherImg(weatherInfo.getWeatherLiveInfo()));
+            bigWeatherInfo.setText(weatherInfo.getWeatherLiveInfo());
+        }else {
+            bigTmpTxt.setText(weatherInfo.getWeatherTmp());
+        }
+
     }
 
     /**

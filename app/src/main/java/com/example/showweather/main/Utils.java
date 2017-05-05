@@ -1,4 +1,4 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
 import android.app.ActivityManager;
 import android.content.Context;

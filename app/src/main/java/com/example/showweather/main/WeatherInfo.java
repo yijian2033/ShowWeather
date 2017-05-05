@@ -1,4 +1,4 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
 /**
  * Created by Administrator on 2016/6/2 0002.
@@ -13,6 +13,34 @@ public class WeatherInfo {
     private String weatherWind;
     private String weatherHum;
     private String weatherPress;
+    private String weatherLiveTmp;
+    private  String weatherLiveInfo;	//
+    private int weatherLiveImg;
+
+    public String getWeatherLiveInfo() {
+        return weatherLiveInfo;
+    }
+
+    public void setWeatherLiveInfo(String weatherLiveInfo) {
+        this.weatherLiveInfo = weatherLiveInfo;
+    }
+
+    public int getWeatherLiveImg() {
+        return weatherLiveImg;
+    }
+
+    public void setWeatherLiveImg(int weatherLiveImg) {
+        this.weatherLiveImg = weatherLiveImg;
+    }
+
+    public String getWeatherLiveTmp() {
+        return weatherLiveTmp;
+    }
+
+    public void setWeatherLiveTmp(String weatherLiveTmp) {
+        this.weatherLiveTmp = weatherLiveTmp;
+    }
+
 
     public String getWeatherPress() {
         return weatherPress;

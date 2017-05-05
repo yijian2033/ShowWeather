@@ -4,9 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.example.showweather.WeatherImageButton
+    <com.example.showweather.main.WeatherImageButton
         android:id="@+id/define_weatherbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"></com.example.showweather.WeatherImageButton>
+        android:layout_gravity="center_horizontal"></com.example.showweather.main.WeatherImageButton>
 </LinearLayout>

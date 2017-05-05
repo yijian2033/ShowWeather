@@ -1,4 +1,4 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.showweather.R;
 
 /**
  * Created by Administrator on 2016/6/1 0001.

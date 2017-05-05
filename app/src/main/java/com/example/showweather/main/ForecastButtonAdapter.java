@@ -1,4 +1,4 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 
-import android.widget.GridView;
+import com.example.showweather.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +56,11 @@ public class ForecastButtonAdapter extends BaseAdapter {
             convertView.setTag(viewHolder);
         } else
             viewHolder = (ViewHolder) convertView.getTag();
-
-        viewHolder.wib.setImageResource(list.get(position).getWeatherImg(), list.get(position).getWhichDayOfWeek(), list.get(position).getWeatherTmp());
+        if (position==0){
+            viewHolder.wib.setImageResource(list.get(position).getWeatherLiveImg(), list.get(position).getWhichDayOfWeek(), list.get(position).getWeatherTmp());
+        }else {
+            viewHolder.wib.setImageResource(list.get(position).getWeatherImg(), list.get(position).getWhichDayOfWeek(), list.get(position).getWeatherTmp());
+        }
         return convertView;
     }
 }

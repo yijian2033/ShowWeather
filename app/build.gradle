@@ -1,26 +1,64 @@
 apply plugin: 'com.android.application'
-
+apply plugin: 'me.tatarka.retrolambda'
 android {
     compileSdkVersion 22
     buildToolsVersion "25.0.0"
 
-    defaultConfig {
-        applicationId "com.example.showweather"
-        minSdkVersion 22
-        targetSdkVersion 22
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    defaultConfig {
+        applicationId rootProject.ext.android.applicationId
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
+
+    }
     buildTypes {
+        debug {
+            buildConfigField("boolean", "LOG_DEBUG", "true")
+        }
+
         release {
+            buildConfigField("boolean", "LOG_DEBUG", "false")
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.2.1'
+   // compile 'com.android.support:support-v4:22.2.1'
     compile files('libs/AMap_Location_V3.2.0_20161205.jar')
     compile files('libs/Android_Map3D_SDK_V4.1.2_20161104.jar')
     compile files('libs/xUtils-2.6.14.jar')
+    compile rootProject.ext.dependencies["butterknife"]
+    annotationProcessor rootProject.ext.dependencies["butterknife-compiler"]
+
+    compile rootProject.ext.dependencies["dagger"]
+    annotationProcessor rootProject.ext.dependencies["dagger-compiler"]
+
+    compile rootProject.ext.dependencies["retrofit2-fastjson-converter"]
+
+    compile rootProject.ext.dependencies["stetho"]
+
+    compile rootProject.ext.dependencies["stetho-okhttp3"]
+
+    compile rootProject.ext.dependencies["okhttp3-logging-interceptor"]
+    compile rootProject.ext.dependencies["retrofit"]
+    compile rootProject.ext.dependencies["adapter-rxjava"]
+
+    compile rootProject.ext.dependencies["rxandroid"]
+    compile rootProject.ext.dependencies["rxbinding"]
+    compile rootProject.ext.dependencies["ormlite-android"]
+    compile rootProject.ext.dependencies["stream"]
+    compile rootProject.ext.dependencies["fastjson"]
+
+
+    compile 'org.glassfish:javax.annotation:10.0-b28'
 }

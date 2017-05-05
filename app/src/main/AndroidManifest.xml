@@ -12,6 +12,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:name=".WeatherApplication"
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="com.amap.api.v2.apikey"
@@ -21,7 +22,7 @@
         <service android:name="com.amap.api.location.APSService" >
         </service>
         <activity
-            android:name="com.example.showweather.WeatherAcivity"
+            android:name="com.example.showweather.main.WeatherAcivity"
             
             android:label="@string/app_name"                   
             android:screenOrientation="landscape">
@@ -33,7 +34,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name="com.example.showweather.LocationLocalService"></service>
+        <service android:name="com.example.showweather.main.LocationLocalService"></service>
     </application>
     <!--定位权限-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

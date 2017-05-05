@@ -1,9 +1,7 @@
-package com.example.showweather;
+package com.example.showweather.main;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.GpsSatellite;
 import android.location.GpsStatus;
 import android.location.Location;
