@@ -1,5 +1,8 @@
 package com.example.showweather.model.db.entities.minimalist;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -10,7 +13,7 @@ import com.j256.ormlite.table.DatabaseTable;
  *         16/2/25
  */
 @DatabaseTable(tableName = "WeatherLive")
-public class WeatherLive {
+public class WeatherLive implements Parcelable{
  //   insert stmt on object
  // RealTime{cityId='101280601', weather='大雨', temp='23.0', humidity='99.0', wind='西北风', windSpeed='1.0', time='1493882100000'}:
  // INSERT INTO `WeatherLive` (`cityId` ,`humidity` ,`temp` ,`time` ,`weather` ,`wind` ,`windSpeed` ) VALUES (?,?,?,?,?,?,?)
@@ -50,6 +53,28 @@ public class WeatherLive {
         this.windSpeed = windSpeed;
         this.time = time;
     }
+
+    protected WeatherLive(Parcel in) {
+        cityId = in.readString();
+        weather = in.readString();
+        temp = in.readString();
+        humidity = in.readString();
+        wind = in.readString();
+        windSpeed = in.readString();
+        time = in.readLong();
+    }
+
+    public static final Creator<WeatherLive> CREATOR = new Creator<WeatherLive>() {
+        @Override
+        public WeatherLive createFromParcel(Parcel in) {
+            return new WeatherLive(in);
+        }
+
+        @Override
+        public WeatherLive[] newArray(int size) {
+            return new WeatherLive[size];
+        }
+    };
 
     public String getCityId() {
         return cityId;
@@ -118,5 +143,22 @@ public class WeatherLive {
                 ", windSpeed='" + windSpeed + '\'' +
                 ", time='" + time + '\'' +
                 '}';
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeString(cityId);
+        dest.writeString(weather);
+        dest.writeString(temp);
+        dest.writeString(humidity);
+        dest.writeString(wind);
+        dest.writeString(windSpeed);
+        dest.writeLong(time);
     }
 }

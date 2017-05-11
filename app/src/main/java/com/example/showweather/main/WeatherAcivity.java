@@ -321,6 +321,12 @@ public class WeatherAcivity extends Activity {
         AMOrPMText = (TextView) findViewById(R.id.amOrpmtext);
         linearLayout = (LinearLayout) findViewById(R.id.weatherandtmpandicon);
         forecastList = new ArrayList<WeatherInfo>();
+        linearLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateWeather();
+            }
+        });
     }
 
     /**
