@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -334,6 +335,7 @@ public class WeatherAcivity extends Activity {
      */
     private void initGridView(final List<WeatherInfo> weatherlist) {
         forecastButtonAdapter = new ForecastButtonAdapter(this, weatherlist);
+        forecastGridView.setNumColumns(weatherlist.size());
         forecastGridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
         forecastGridView.setAdapter(forecastButtonAdapter);
         forecastGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -388,12 +390,15 @@ public class WeatherAcivity extends Activity {
 
                                    @Override
                                    public void onError(Throwable e) {
-                                       Toast.makeText(WeatherAcivity.this,"发生错误"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                     //  Toast.makeText(WeatherAcivity.this,"发生错误"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                                       Log.e("发生错误","发生错误" + e.getMessage());
                                        e.printStackTrace();
                                    }
 
                                    @Override
                                    public void onNext(Weather weather) {
+                                    //   Toast.makeText(WeatherAcivity.this,"更新天气成功",Toast.LENGTH_SHORT).show();
+                                       Log.i("更新天气成功","更新天气成功" );
                                        showWerather(weather);
                                    }
                                }
@@ -457,7 +462,7 @@ public class WeatherAcivity extends Activity {
     private void showWerather(Weather weather) {
         updateperCitys(weather.getCityName());
         forecastList.clear();
-        for (int i = 0; i < 5; ++i) {
+        for (int i = 0; i < weather.getWeatherForecasts().size(); ++i) {
             nowDate = new WeatherInfo();
             nowDate.setWeatherInfo(weather.getWeatherForecasts().get(i).getWeather());
             nowDate.setWeatherImg(getWeathersmallImg(weather.getWeatherForecasts().get(i).getWeather()));

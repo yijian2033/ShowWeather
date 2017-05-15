@@ -54,20 +54,32 @@ public class EnvironmentCloudWeatherAdapter extends WeatherAdapter{
         List<WeatherForecast> weatherForecasts = new ArrayList<>();
         for (EnvironmentCloudForecast.ForecastEntity entity:environmentCloudForecast.getForecast()){
 
-            String weather ;
+            String weather ;//天气状况
             if (entity.getCond().getCond_d().equals(entity.getCond().getCond_n())){
                 weather= entity.getCond().getCond_d();
             }else {
                 weather= entity.getCond().getCond_d()+"转"+entity.getCond().getCond_n();
             }
+            String win;
+            if (entity.getWind().getDir().equals("无持续风向")){
+                if (entity.getWind().getSc().equals("微风"))
+                    win = entity.getWind().getSc();
+                else
+                    win = entity.getWind().getSc()+"级";
+            }else {
+                if (entity.getWind().getSc().equals("微风"))
+                    win = entity.getWind().getDir() +" " +entity.getWind().getSc();
+                else
+                    win = entity.getWind().getDir() +" " +entity.getWind().getSc()+"级";
 
+            }
             weatherForecasts.add(new WeatherForecast(environmentCloudForecast.getCitycode(),
                     weather,
                     entity.getCond().getCond_d(),
                     entity.getCond().getCond_n(),
                     Integer.parseInt(entity.getTmp().getMax()),
                     Integer.parseInt(entity.getTmp().getMin()),
-                    entity.getWind().getSc(),
+                    win,
                     entity.getDate(),
                     Utils.getWeekDays(entity.getDate()),
                     entity.getHum(),

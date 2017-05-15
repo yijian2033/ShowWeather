@@ -33,7 +33,7 @@ public class ForecastButtonAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return APP_PAGE_SIZE;
+        return list.size()/*APP_PAGE_SIZE*/;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ForecastButtonAdapter extends BaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
         if (position==0){
             viewHolder.wib.setImageResource(list.get(position).getWeatherLiveImg(), list.get(position).getWhichDayOfWeek(), list.get(position).getWeatherTmp());
-        }else {
+        }else if (position<list.size()){
             viewHolder.wib.setImageResource(list.get(position).getWeatherImg(), list.get(position).getWhichDayOfWeek(), list.get(position).getWeatherTmp());
         }
         return convertView;

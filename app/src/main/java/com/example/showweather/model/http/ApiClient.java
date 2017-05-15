@@ -6,6 +6,8 @@ import com.example.showweather.BuildConfig;
 import com.example.showweather.model.http.service.EnvironmentCloudWeatherService;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -37,6 +39,9 @@ public final class ApiClient {
             httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             builder.addInterceptor(httpLoggingInterceptor).addNetworkInterceptor(new StethoInterceptor());
         }
+        builder.readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60,TimeUnit.SECONDS)
+                .connectTimeout(60,TimeUnit.SECONDS);
         OkHttpClient client = builder.build();
 
         Retrofit retrofit = new Retrofit.Builder()
