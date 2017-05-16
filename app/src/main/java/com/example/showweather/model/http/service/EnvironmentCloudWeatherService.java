@@ -17,7 +17,7 @@ public interface EnvironmentCloudWeatherService {
     /**
      * 获取指定城市的实时天气
      * <p>
-     * API地址：http://service.envicloud.cn:8082/v2/weatherlive/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/101020100
+     * API地址：http://service.envicloud.cn:8082/v2/weatherlive/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/101020100
      *
      * @param cityId 城市id
      * @return Observable
@@ -28,7 +28,7 @@ public interface EnvironmentCloudWeatherService {
     /**
      * 获取指定城市7日天气预报
      * <p>
-     * API地址：http://service.envicloud.cn:8082/v2/weatherforecast/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/101020100
+     * API地址：http://service.envicloud.cn:8082/v2/weatherforecast/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/101020100
      *
      * @param cityId 城市id
      * @return Observable
@@ -39,23 +39,23 @@ public interface EnvironmentCloudWeatherService {
     /**
      * 获取指定城市的实时空气质量
      * <p>
-     * API地址：http://service.envicloud.cn:8082/v2/cityairlive/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/101020100
+     * API地址：http://service.envicloud.cn:8082/v2/cityairlive/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/101020100
      *
      * @param cityId 城市id
      * @return Observable
      */
-    @GET("/v2/cityairlive/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/{cityId}")
+    @GET("/v2/cityairlive/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/{cityId}")
     Observable<EnvironmentCloudCityAirLive> getAirLive(@Path("cityId") String cityId);
 
 
     /**
      * 获取指定城市的五日空气质量预报
      * <p>
-     * API地址：http://service.envicloud.cn:8082/v2/cityairforecast/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/101020100
+     * API地址：http://service.envicloud.cn:8082/v2/cityairforecast/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/101020100
      *
      * @param cityId 城市id
      * @return Observable
      */
-    @GET("/v2/cityairforecast/YMFYB256AGFUZZE0ODQ3MZM1MZE2NTU=/{cityId}")
+    @GET("/v2/cityairforecast/ZMF3ZWLNDWKXNDKZMZU5ODQ4NZE2/{cityId}")
     Observable<EnvironmentCloudCityAirLive> getAirForecast(@Path("cityId") String cityId);
 }
