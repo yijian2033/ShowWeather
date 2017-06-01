@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'me.tatarka.retrolambda'
 android {
-    compileSdkVersion 22
+    compileSdkVersion 25
     buildToolsVersion "25.0.0"
 
     compileOptions {
@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-   // compile 'com.android.support:support-v4:22.2.1'
+    // compile 'com.android.support:support-v4:22.2.1'
     compile files('libs/AMap_Location_V3.2.0_20161205.jar')
     compile files('libs/Android_Map3D_SDK_V4.1.2_20161104.jar')
     compile files('libs/xUtils-2.6.14.jar')
@@ -59,6 +59,14 @@ dependencies {
     compile rootProject.ext.dependencies["stream"]
     compile rootProject.ext.dependencies["fastjson"]
 
-
+    compile rootProject.ext.dependencies["design"]
+    compile rootProject.ext.dependencies["recyclerview"]
+    compile rootProject.ext.dependencies["cardview"]
+    //    compile rootProject.ext.dependencies["support-v4"]
+    //   compile rootProject.ext.dependencies["appcompat-v7"]
+    //  compile ('com.android.support:appcompat-v7:23.3.0'){        exclude group: "com.android.support", module: "support-v4" }
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
     compile 'org.glassfish:javax.annotation:10.0-b28'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }

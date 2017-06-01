@@ -6,6 +6,7 @@ import android.os.StrictMode;
 import android.util.Log;
 
 import com.example.showweather.model.http.ApiClient;
+import com.example.showweather.utils.CityDBUtil;
 import com.facebook.stetho.Stetho;
 
 /**
@@ -48,6 +49,9 @@ public class WeatherApplication extends Application {
 
         weatherApplicationInstance = this;
 
+        Log.d(TAG, "importCityData start");
+        CityDBUtil.importCityData();
+        Log.d(TAG, "importCityData end");
 
         ApiClient.init();
         Log.d(TAG, "onCreate end");

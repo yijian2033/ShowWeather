@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.showweather.model.db.entities.minimalist.AirQualityLive;
 import com.example.showweather.model.db.entities.minimalist.LifeIndex;
 import com.example.showweather.model.db.entities.minimalist.Weather;
+import com.example.showweather.model.db.entities.minimalist.WeatherCities;
 import com.example.showweather.model.db.entities.minimalist.WeatherForecast;
 import com.example.showweather.model.db.entities.minimalist.WeatherLive;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -26,7 +27,7 @@ public final class WeatherDatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = "WeatherDatabaseHelper";
 
     private static final String DATABASE_NAME = "weather.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 7;
 
     private static volatile WeatherDatabaseHelper instance;
 
@@ -38,11 +39,12 @@ public final class WeatherDatabaseHelper extends OrmLiteSqliteOpenHelper {
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
 
         try {
-            TableUtils.createTable(connectionSource, AirQualityLive.class);
-            TableUtils.createTable(connectionSource, WeatherForecast.class);
-            TableUtils.createTable(connectionSource, LifeIndex.class);
-            TableUtils.createTable(connectionSource, Weather.class);
-            TableUtils.createTable(connectionSource, WeatherLive.class);
+            TableUtils.createTableIfNotExists(connectionSource, AirQualityLive.class);
+            TableUtils.createTableIfNotExists(connectionSource, WeatherForecast.class);
+            TableUtils.createTableIfNotExists(connectionSource, LifeIndex.class);
+            TableUtils.createTableIfNotExists(connectionSource, Weather.class);
+            TableUtils.createTableIfNotExists(connectionSource, WeatherLive.class);
+            TableUtils.createTableIfNotExists(connectionSource, WeatherCities.class);
 
             String weatherTrigger = "CREATE TRIGGER trigger_delete AFTER DELETE " +
                     "ON Weather " +
@@ -62,7 +64,13 @@ public final class WeatherDatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
-
+        try {
+            String dropTrigger = "DROP TRIGGER trigger_delete ;";
+            database.execSQL(dropTrigger);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        onCreate(database,connectionSource);
     }
 
     /**

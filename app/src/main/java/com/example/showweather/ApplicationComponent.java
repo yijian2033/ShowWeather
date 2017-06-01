@@ -2,6 +2,9 @@ package com.example.showweather;
 
 import android.content.Context;
 
+import com.example.showweather.activity.WeatherActivity;
+import com.example.showweather.model.db.entities.minimalist.MyService;
+
 import javax.inject.Singleton;
 
 import dagger.Component;
@@ -17,4 +20,6 @@ public interface ApplicationComponent {
     WeatherApplication getApplication();
 
     Context getContext();
+    void inject(MyService service);
+    void inject(WeatherActivity acivity);
 }

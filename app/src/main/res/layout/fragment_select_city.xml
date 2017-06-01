@@ -1,0 +1,33 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.showweather.view.fragment.SelectCityFragment">
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:textColor="@color/black"
+        android:textSize="24sp"
+        android:text="城市选择->省份"
+        android:paddingLeft="40dp"
+        android:gravity="center_vertical"
+        android:background="?attr/colorPrimary"
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="64dp"
+        android:id="@+id/rv_city_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_location" />
+
+</FrameLayout>

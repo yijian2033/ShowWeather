@@ -2,14 +2,15 @@ package com.example.showweather.model.repository;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.widget.Toast;
 
 
 import com.example.showweather.main.Utils;
 import com.example.showweather.model.db.dao.WeatherDao;
 import com.example.showweather.model.db.entities.adapter.EnvironmentCloudWeatherAdapter;
 import com.example.showweather.model.db.entities.minimalist.Weather;
+import com.example.showweather.model.db.entities.minimalist.WeatherLive;
 import com.example.showweather.model.http.ApiClient;
+import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudWeatherLive;
 import com.example.showweather.utils.NetworkUtils;
 
 import java.sql.SQLException;
@@ -42,7 +43,6 @@ public class WeatherDataRepository {
 
         if (!NetworkUtils.isNetworkConnected(context))
             return observableForGetWeatherFromDB;
-
         //从服务端获取天气数据
         Observable<Weather> observableForGetWeatherFromNetWork = Observable.zip(
                 ApiClient.environmentCloudWeatherService.getWeatherForecast(cityId),

@@ -1,4 +1,4 @@
-def supportVersion = "22.2.1"
+def supportVersion = "25.3.1"
 def rxBindingVersion = "0.4.0"
 def retrofitVersion = "2.2.0"
 def okHttpVersion = "3.7.0"
@@ -19,7 +19,7 @@ project.ext {
 
     dependencies = [
             //android-support
-            "support-v4"                  : "com.android.support:support-v4:${supportVersion}",
+     //       "support-v4"                  : "com.android.support:support-v4:${supportVersion}",
             "appcompat-v7"                : "com.android.support:appcompat-v7:${supportVersion}",
             "design"                      : "com.android.support:design:${supportVersion}",
             "recyclerview"                : "com.android.support:recyclerview-v7:${supportVersion}",

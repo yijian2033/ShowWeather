@@ -40,13 +40,52 @@ public class EnvironmentCloudWeatherAdapter extends WeatherAdapter{
 
    @Override
     public WeatherLive getWeatherLive() {
-        return new WeatherLive(environmentCloudWeatherLive.getCitycode(),
-                environmentCloudWeatherLive.getPhenomena(),
-                environmentCloudWeatherLive.getTemperature(),
-                environmentCloudWeatherLive.getHumidity(),
-                environmentCloudWeatherLive.getWinddirect(),
-                environmentCloudWeatherLive.getWindspeed(),
-                DateConvertUtils.dateToTimeStamp(environmentCloudWeatherLive.getUpdatetime(),DateConvertUtils.DATA_FORMAT_PATTEN_YYYY_MMMM_DD_HH_MM));
+       if(environmentCloudWeatherLive.getRcode()!=200){
+           EnvironmentCloudForecast.ForecastEntity entity = environmentCloudForecast.getForecast().get(0);
+           String weather ;//天气状况
+           if (environmentCloudForecast.getForecast().get(0).getCond().getCond_d().equals(environmentCloudForecast.getForecast().get(0).getCond().getCond_n())){
+               weather= environmentCloudForecast.getForecast().get(0).getCond().getCond_d();
+           }else {
+               weather= environmentCloudForecast.getForecast().get(0).getCond().getCond_d()+"转"+environmentCloudForecast.getForecast().get(0).getCond().getCond_n();
+           }
+           String win;
+           if (entity.getWind().getDir().equals("无持续风向")){
+               if (entity.getWind().getSc().equals("微风"))
+                   win = entity.getWind().getSc();
+               else
+                   win = entity.getWind().getSc()+"级";
+           }else {
+               if (entity.getWind().getSc().equals("微风"))
+                   win = entity.getWind().getDir() +" " +entity.getWind().getSc();
+               else
+                   win = entity.getWind().getDir() +" " +entity.getWind().getSc()+"级";
+
+           }
+           return new WeatherLive(environmentCloudForecast.getCitycode(),
+                   weather,
+                   entity.getTmp().getMax(),
+                   entity.getHum(),
+                   win,
+                   "5",
+                   System.currentTimeMillis());
+       }else{
+           String win;
+           if (environmentCloudWeatherLive.getWinddirect().equals("无持续风向")){
+               win = environmentCloudWeatherLive.getWindpower();
+           }else {
+               win = environmentCloudWeatherLive.getWinddirect() +" " +environmentCloudWeatherLive.getWindpower();
+
+           }
+           return new WeatherLive(environmentCloudWeatherLive.getCitycode(),
+                   environmentCloudWeatherLive.getPhenomena(),
+                   environmentCloudWeatherLive.getTemperature(),
+                   environmentCloudWeatherLive.getHumidity(),
+                   win,
+                   environmentCloudWeatherLive.getWindspeed(),
+                   DateConvertUtils.dateToTimeStamp(environmentCloudWeatherLive.getUpdatetime(),DateConvertUtils.DATA_FORMAT_PATTEN_YYYY_MMMM_DD_HH_MM));
+       }
+
+
 
     }
     @Override

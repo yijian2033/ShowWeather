@@ -8,5 +8,6 @@
     <color name="gray">#828282</color>
     <color name="bluesky">#9DD0ED</color>
     <color name="red">#E33542</color>
+    <color name="black_overlay">#66000000</color>
 
 </resources>

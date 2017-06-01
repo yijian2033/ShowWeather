@@ -7,6 +7,7 @@ import com.example.showweather.model.db.WeatherDatabaseHelper;
 import com.example.showweather.model.db.entities.minimalist.AirQualityLive;
 import com.example.showweather.model.db.entities.minimalist.LifeIndex;
 import com.example.showweather.model.db.entities.minimalist.Weather;
+import com.example.showweather.model.db.entities.minimalist.WeatherCities;
 import com.example.showweather.model.db.entities.minimalist.WeatherForecast;
 import com.example.showweather.model.db.entities.minimalist.WeatherLive;
 import com.j256.ormlite.dao.Dao;
@@ -15,6 +16,7 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedDelete;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -32,22 +34,70 @@ public class WeatherDao {
     private Dao<LifeIndex, Long> lifeIndexesDaoOperation;
     private Dao<WeatherLive, String> realTimeDaoOperation;
     private Dao<Weather, String> weatherDaoOperation;
+    private Dao<WeatherCities, String> weatherCitiesDaoOperation;
 
-
-    public  WeatherDao(Context context) {
+    @Inject
+    WeatherDao(Context context) {
 
         this.context = context;
         this.forecastDaoOperation = WeatherDatabaseHelper.getInstance(context).getWeatherDao(WeatherForecast.class);
         this.lifeIndexesDaoOperation = WeatherDatabaseHelper.getInstance(context).getWeatherDao(LifeIndex.class);
         this.realTimeDaoOperation = WeatherDatabaseHelper.getInstance(context).getWeatherDao(WeatherLive.class);
         this.weatherDaoOperation = WeatherDatabaseHelper.getInstance(context).getWeatherDao(Weather.class);
+        this.weatherCitiesDaoOperation = WeatherDatabaseHelper.getInstance(context).getWeatherDao(WeatherCities.class);
+    }
+    public void insertSelectedCity(WeatherCities cities){
+        try {
+            weatherCitiesDaoOperation.createOrUpdate(cities);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void deleteSelectedCityById(String cityId) throws SQLException {
+
+        weatherCitiesDaoOperation.deleteById(cityId);
     }
 
+    private void deleteSelectedCity(WeatherCities data) throws SQLException {
+
+        weatherCitiesDaoOperation.delete(data);
+
+    }
+    public WeatherCities querySelectedCity(String cityId) throws SQLException {
+
+        return TransactionManager.callInTransaction(WeatherDatabaseHelper.getInstance(context).getConnectionSource(), () -> {
+            WeatherCities city = weatherCitiesDaoOperation.queryForId(cityId);
+            return city;
+        });
+    }
+    public long getCityCount(){
+        try {
+            return weatherCitiesDaoOperation.queryBuilder().countOf();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    /**
+     * 查询数据库中的所有已添加的城市
+     *
+     * @return 结果集中只包括城市信息，天气数据不在其中
+     * @throws SQLException
+     */
+    public List<WeatherCities> queryAllSelectedCity() throws SQLException {
+
+        return TransactionManager.callInTransaction(WeatherDatabaseHelper.getInstance(context).getConnectionSource(), () -> {
+
+            List<WeatherCities> weatherList = weatherCitiesDaoOperation.queryForAll();
+            return weatherList;
+        });
+    }
     public Weather queryWeather(String cityId) throws SQLException {
 
         return TransactionManager.callInTransaction(WeatherDatabaseHelper.getInstance(context).getConnectionSource(), () -> {
             Weather weather = weatherDaoOperation.queryForId(cityId);
             if (weather != null) {
+
                 weather.setWeatherForecasts(forecastDaoOperation.queryForEq(WeatherForecast.CITY_ID_FIELD_NAME, cityId));
                 weather.setLifeIndexes(lifeIndexesDaoOperation.queryForEq(WeatherForecast.CITY_ID_FIELD_NAME, cityId));
                 weather.setWeatherLive(realTimeDaoOperation.queryForId(cityId));
@@ -69,7 +119,7 @@ public class WeatherDao {
     }
 
     public void deleteById(String cityId) throws SQLException {
-
+        weatherCitiesDaoOperation.deleteById(cityId);
         weatherDaoOperation.deleteById(cityId);
     }
 
@@ -84,7 +134,7 @@ public class WeatherDao {
      * @return 结果集中只包括城市信息，天气数据不在其中
      * @throws SQLException
      */
-    public List<Weather> queryAllSaveCity() throws SQLException {
+    public List<Weather> queryAllSaveCity1() throws SQLException {
 
         return TransactionManager.callInTransaction(WeatherDatabaseHelper.getInstance(context).getConnectionSource(), () -> {
 
@@ -95,6 +145,32 @@ public class WeatherDao {
                 weather.setLifeIndexes(lifeIndexesDaoOperation.queryForEq(WeatherForecast.CITY_ID_FIELD_NAME, cityId));
                 weather.setWeatherLive(realTimeDaoOperation.queryForId(cityId));
             }
+            return weatherList;
+        });
+    }
+
+    public List<Weather> queryAllSaveCity() throws SQLException {
+
+        return TransactionManager.callInTransaction(WeatherDatabaseHelper.getInstance(context).getConnectionSource(), () -> {
+            List<WeatherCities> weatherCities = queryAllSelectedCity();
+            List<Weather> weatherList = new ArrayList<Weather>();
+            //weatherDaoOperation.queryForAll();
+            for (WeatherCities weatherCity:weatherCities){
+                Weather weather= queryWeather(weatherCity.getCityId());
+                if (weather == null)
+                    weather = new Weather();
+                weather.setCityName(weatherCity.getCityName());
+                weather.setCityId(weatherCity.getCityId());
+                weather.setCityNameEn(weatherCity.getCityNameEn());
+                weatherList.add(weather);
+            }
+
+            /*for (Weather weather : weatherList) {
+                String cityId = weather.getCityId();
+                weather.setWeatherForecasts(forecastDaoOperation.queryForEq(WeatherForecast.CITY_ID_FIELD_NAME, cityId));
+                weather.setLifeIndexes(lifeIndexesDaoOperation.queryForEq(WeatherForecast.CITY_ID_FIELD_NAME, cityId));
+                weather.setWeatherLive(realTimeDaoOperation.queryForId(cityId));
+            }*/
             return weatherList;
         });
     }
