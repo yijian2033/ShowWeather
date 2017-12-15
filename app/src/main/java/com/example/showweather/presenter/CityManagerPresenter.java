@@ -18,11 +18,12 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com ==>> baronzhang.com)
@@ -34,8 +35,7 @@ public final class CityManagerPresenter implements CityManagerContract.Presenter
     private CityManagerContract.View view;
 
 
-    private CompositeSubscription subscriptions;
-
+    CompositeDisposable composite ;
     @Inject
     WeatherDao weatherDao;
 
@@ -43,7 +43,7 @@ public final class CityManagerPresenter implements CityManagerContract.Presenter
     CityManagerPresenter(Context context, CityManagerContract.View view) {
 
         this.view = view;
-        this.subscriptions = new CompositeSubscription();
+         this.composite = new CompositeDisposable();
         view.setPresenter(this);
 
         DaggerPresenterComponent.builder()
@@ -58,20 +58,21 @@ public final class CityManagerPresenter implements CityManagerContract.Presenter
 
     @Override
     public void unSubscribe() {
-        subscriptions.clear();
+        composite.clear();
     }
 
     @Override
     public void loadSavedCities() {
 
         try {
-            Subscription subscription = Observable.just(weatherDao.queryAllSaveCity())
+            Disposable disposable = Observable.just(weatherDao.queryAllSaveCity())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(weathers -> {
                         view.displaySavedCities(weathers);
                     });
-            subscriptions.add(subscription);
+            composite.add(disposable);
+          //  subscriptions.add(subscription);
         } catch (SQLException e) {
             e.printStackTrace();
         }

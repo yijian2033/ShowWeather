@@ -25,6 +25,8 @@ import com.example.showweather.model.repository.WeatherDataRepository;
 import com.example.showweather.presenter.component.DaggerPresenterComponent;
 import com.example.showweather.utils.NetworkUtils;
 
+import org.reactivestreams.Subscriber;
+
 import java.io.InvalidClassException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -32,12 +34,14 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * ljw：Administrator on 2017/5/20 0020 11:44
@@ -46,7 +50,7 @@ public class WeatherFragmentPresenter implements WeatherFragmentContract.Present
     private final Context context;
     private  WeatherFragmentContract.View weatherView;
 
-    private CompositeSubscription subscriptions;
+    private CompositeDisposable compositeDisposable;
 
 
     private AMapLocationClient locationClient = null;
@@ -61,7 +65,7 @@ public class WeatherFragmentPresenter implements WeatherFragmentContract.Present
         // Toast.makeText(context,"WeatherActivityPresenter",Toast.LENGTH_LONG).show();
         this.weatherView = weatherView;
         this.weatherView.setPresenter(this);
-        subscriptions = new CompositeSubscription();
+        compositeDisposable = new CompositeDisposable();
         DaggerPresenterComponent.builder()
                 .applicationModule(new ApplicationModule(context))
                 .build().inject(this);
@@ -78,7 +82,7 @@ public class WeatherFragmentPresenter implements WeatherFragmentContract.Present
     @Override
     public void unSubscribe() {
         //   Toast.makeText(context,"WeatherActivityPresenter  unSubscribe",Toast.LENGTH_LONG).show();
-        subscriptions.clear();
+        compositeDisposable.clear();
         if (weatherView != null)
             weatherView = null;
     }
@@ -89,12 +93,19 @@ public class WeatherFragmentPresenter implements WeatherFragmentContract.Present
         {
             Log.i("更新天气", "更新天气开始1 "+cityId);
             //	getWeatherInfoByCityCode(weatherUrl + mapAllNameID.get(Utils.getCity(getApplicationContext())));
-            Subscription subscription = WeatherDataRepository.getWeather(context, cityId/*mapAllNameID.get(Utils.getCity(context))*/, weatherDao)
+            Disposable disposable = WeatherDataRepository.getWeather(context, cityId/*mapAllNameID.get(Utils.getCity(context))*/, weatherDao)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                  //  .doOnRequest((l)->weatherView.setRefreshing(true))
-                    .doOnTerminate(()->weatherView.setRefreshing(false))
-                    .subscribe(new Subscriber<Weather>() {
+                    //  .doOnRequest((l)->weatherView.setRefreshing(true))
+                    .doOnTerminate(() -> weatherView.setRefreshing(false))
+                    .subscribe(weather -> {
+                        if (!NetworkUtils.isNetworkConnected(context)&&weather == null){//没有网路时本地数据库也查不到天气的情况
+                            Toast.makeText(context,"网络不通，暂时无法获取天气数据",Toast.LENGTH_SHORT).show();
+                        }else if (weatherView != null){
+                            weatherView.showWerather(weather);
+                        }
+                    }
+                            /*new Subscriber<Weather>() {
                                    @Override
                                    public void onCompleted() {
 
@@ -118,8 +129,8 @@ public class WeatherFragmentPresenter implements WeatherFragmentContract.Present
                                            weatherView.showWerather(weather);
                                    }
                                }
-                    );
-            subscriptions.add(subscription);
+                    */);
+            compositeDisposable.add(disposable);
         }
     }
 

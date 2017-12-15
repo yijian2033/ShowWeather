@@ -182,6 +182,7 @@ public class WeatherFragment extends Fragment implements WeatherFragmentContract
                     android.R.color.holo_orange_light,
                     android.R.color.holo_red_light);
             mRefreshLayout.setSize(0);
+            mRefreshLayout.setProgressViewOffset(false,0,100);
             mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                                                     @Override
                                                     public void onRefresh() {

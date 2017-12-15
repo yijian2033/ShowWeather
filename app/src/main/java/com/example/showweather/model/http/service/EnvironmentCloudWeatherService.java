@@ -4,9 +4,10 @@ import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudCityA
 import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudForecast;
 import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudWeatherLive;
 
+import io.reactivex.Observable;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import rx.Observable;
+
 
 /**
  * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com ==>> baronzhang.com)

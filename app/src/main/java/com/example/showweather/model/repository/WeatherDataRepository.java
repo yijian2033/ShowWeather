@@ -13,12 +13,15 @@ import com.example.showweather.model.http.ApiClient;
 import com.example.showweather.model.http.entity.envicloud.EnvironmentCloudWeatherLive;
 import com.example.showweather.utils.NetworkUtils;
 
-import java.sql.SQLException;
+import org.reactivestreams.Subscriber;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.exceptions.Exceptions;
-import rx.schedulers.Schedulers;
+import java.sql.SQLException;
+;import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.exceptions.Exceptions;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com ==>> baronzhang.com)
@@ -28,7 +31,20 @@ public class WeatherDataRepository {
 
     public static Observable<Weather> getWeather(Context context, String cityId, WeatherDao weatherDao) {
         //从数据库获取天气数据
-        Observable<Weather> observableForGetWeatherFromDB = Observable.create(new Observable.OnSubscribe<Weather>() {
+        Observable<Weather> observableForGetWeatherFromDB = Observable.create(new ObservableOnSubscribe<Weather>() {
+                                                                                  @Override
+                                                                                  public void subscribe(@NonNull ObservableEmitter<Weather> e) throws Exception {
+                                                                                      try {
+                                                                                          Weather weather = weatherDao.queryWeather(cityId);
+                                                                                          if ( weather!=null )
+                                                                                          e.onNext(weather);
+                                                                                          e.onComplete();
+                                                                                      } catch (SQLException ex) {
+                                                                                          throw Exceptions.propagate(ex);
+                                                                                      }
+                                                                                  }
+                                                                              }
+                /*new Observable.OnSubscribe<Weather>() {
             @Override
             public void call(Subscriber<? super Weather> subscriber) {
                 try {
@@ -39,7 +55,7 @@ public class WeatherDataRepository {
                     throw Exceptions.propagate(e);
                 }
             }
-        });
+        }*/);
 
         if (!NetworkUtils.isNetworkConnected(context))
             return observableForGetWeatherFromDB;

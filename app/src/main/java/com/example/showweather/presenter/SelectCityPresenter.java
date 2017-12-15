@@ -32,11 +32,12 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
 
 /**
  * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com ==>> baronzhang.com)
@@ -46,7 +47,7 @@ public final class SelectCityPresenter implements SelectCityContract.Presenter {
     private final Context context;
     private final SelectCityContract.View cityListView;
 
-    private CompositeSubscription subscriptions;
+    private CompositeDisposable compositeDisposable;
 
     private AMapLocationClient locationClient = null;
     private AMapLocationClientOption locationOption = new AMapLocationClientOption();
@@ -61,7 +62,7 @@ public final class SelectCityPresenter implements SelectCityContract.Presenter {
     SelectCityPresenter(Context context, SelectCityContract.View view) {
         this.context = context;
         this.cityListView = view;
-        this.subscriptions = new CompositeSubscription();
+        this.compositeDisposable = new CompositeDisposable();
         cityListView.setPresenter(this);
         initLocation();
     //    startLocation();
@@ -72,28 +73,28 @@ public final class SelectCityPresenter implements SelectCityContract.Presenter {
     }
     @Override
     public void loadCountry(String city) {
-        Subscription subscription = Observable.just(cityDao.queryCountry(city))
+        Disposable disposable = Observable.just(cityDao.queryCountry(city))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(cityListView::displayCountry);
-        subscriptions.add(subscription);
+        compositeDisposable.add(disposable);
     }
     @Override
     public void loadCities(String province) {
-        Subscription subscription = Observable.just(cityDao.queryCityList(province))
+        Disposable disposable = Observable.just(cityDao.queryCityList(province))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(cityListView::displayCities);
-        subscriptions.add(subscription);
+        compositeDisposable.add(disposable);
     }
 
     @Override
     public void loadProvince() {
-        Subscription subscription = Observable.just(cityDao.queryProvince())
+        Disposable disposable = Observable.just(cityDao.queryProvince())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(cityListView::displayProvince);
-        subscriptions.add(subscription);
+        compositeDisposable.add(disposable);
     }
 
     @Override
@@ -104,7 +105,7 @@ public final class SelectCityPresenter implements SelectCityContract.Presenter {
 
     @Override
     public void unSubscribe() {
-        subscriptions.clear();
+        compositeDisposable.clear();
         destroyLocation();
     }
 

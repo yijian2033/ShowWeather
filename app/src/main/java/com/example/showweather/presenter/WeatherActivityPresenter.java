@@ -32,11 +32,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
-import rx.subscriptions.CompositeSubscription;
+import io.reactivex.disposables.CompositeDisposable;
+
 
 /**
  * ljw：Administrator on 2017/5/18 0018 10:55
@@ -46,7 +43,7 @@ public class WeatherActivityPresenter implements WeatherActivityContract.Present
     private final Context context;
     private  WeatherActivityContract.View weatherView;
 
-    private CompositeSubscription subscriptions;
+    private CompositeDisposable compositeDisposable;
 
 
     private AMapLocationClient locationClient = null;
@@ -62,7 +59,7 @@ public class WeatherActivityPresenter implements WeatherActivityContract.Present
        // Toast.makeText(context,"WeatherActivityPresenter",Toast.LENGTH_LONG).show();
         this.weatherView = weatherView;
         weatherView.setPresenter(this);
-        subscriptions = new CompositeSubscription();
+        this.compositeDisposable = new CompositeDisposable();
 
       DaggerPresenterComponent.builder()
                 .applicationModule(new ApplicationModule(context))
@@ -81,7 +78,7 @@ public class WeatherActivityPresenter implements WeatherActivityContract.Present
     @Override
     public void unSubscribe() {
      //   Toast.makeText(context,"WeatherActivityPresenter  unSubscribe",Toast.LENGTH_LONG).show();
-        subscriptions.clear();
+        compositeDisposable.clear();
      //   destroyLocation();
         if (weatherView != null)
         weatherView = null;
